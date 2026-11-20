@@ -1,0 +1,24 @@
+{
+  "assessment": "WP-6.1.2",
+  "adjudicated_at_utc": "2026-11-20T21:21:17.137337+00:00",
+  "method": "Independent evaluation of preserved runtime evidence",
+  "original_overall": "REVIEW_REQUIRED",
+  "adjudicated_overall": "PASS",
+  "checks_passed": 17,
+  "checks_total": 17,
+  "soft_delete_verified": true,
+  "error_type": null,
+  "runtime_test_rerun": false,
+  "correction": "The original script expected 14 checks but executed 17. Its aggregate verdict was therefore a false negative.",
+  "original_evidence_sha256": "09114feb4e72f311e99ffed39da786a3a32e1359765071bc1441fbbc7c61724c",
+  "original_script_sha256": "c5ab1d30801e0778a7daaffecd33d0bc72c4daab0fb31ea1f4bcfddedeaff184",
+  "corrected_script_sha256": "9397e6682f39a7e4807c9602b74095fe603dcf90016c2bc87958d006bc8a2a7e",
+  "limitations": [
+    "Privileged admin created the synthetic private persona",
+    "Only persona visibility and sharing were exercised",
+    "No avatar or S3 file access was tested",
+    "No non-administrator owner was tested",
+    "Soft deletion does not physically erase the database record",
+    "Original runtime evidence is preserved unchanged"
+  ]
+}

@@ -571,3 +571,76 @@ successful avatar retrieval, or S3 access by the handler.
 
 - `tests/persona_avatar_http_preflight.py`
 - `evidence/onyx-persona-avatar-http-preflight.json`
+
+## 19. Private Persona Isolation and Sharing Runtime Verification
+
+**Execution timestamp:** 2026-11-20T21:19:23.148164+00:00
+
+**Target:** Onyx v5.1.3 isolated Docker laboratory.
+
+**Method:** Live HTTP testing using synthetic admin and member accounts.
+
+### Recorded HTTP results
+
+| Check | HTTP status | Result |
+|---|---:|---|
+| `admin_login` | 204 | PASS |
+| `member_login` | 204 | PASS |
+| `admin_authenticated` | 200 | PASS |
+| `member_authenticated` | 200 | PASS |
+| `admin_permissions_endpoint` | 200 | PASS |
+| `member_permissions_endpoint` | 200 | PASS |
+| `private_persona_create_http` | 200 | PASS |
+| `admin_can_read_private_persona` | 200 | PASS |
+| `member_private_persona_denied` | 404 | PASS |
+| `admin_shares_with_member` | 200 | PASS |
+| `member_shared_persona_allowed` | 200 | PASS |
+| `admin_revokes_member_share` | 200 | PASS |
+| `member_access_revoked` | 404 | PASS |
+| `admin_soft_delete` | 200 | PASS |
+| `soft_deleted_persona_not_accessible` | 404 | PASS |
+| `member_logout` | 204 | PASS |
+| `admin_logout` | 204 | PASS |
+
+### Adjudicated assessment result
+
+**PASS — 17 of 17 recorded HTTP checks.**
+
+The original raw evidence reported `REVIEW_REQUIRED` because
+the test script expected 14 checks although 17 were executed.
+The original evidence remains unchanged. A separate adjudication
+record independently validates the recorded statuses and results.
+
+The corrected script has not been rerun.
+
+### Security findings
+
+- The synthetic admin created and accessed a private persona.
+- An unprivileged member received HTTP 404 for that persona.
+- Explicit VIEWER sharing enabled member access.
+- Share revocation removed member access.
+- The synthetic persona was soft-deleted and became inaccessible.
+- Both synthetic sessions were logged out.
+- The recovery record was confirmed absent after the run.
+
+### Assessment limitations
+
+This test establishes private-persona visibility and sharing behavior
+in the tested two-account scenario. It does not establish
+non-administrator ownership enforcement, avatar-file access
+authorization, S3 integration, or cross-tenant isolation.
+
+Soft deletion does not prove physical removal of the persona's
+database record.
+
+### Evidence integrity
+
+- Corrected test script SHA-256: `9397e6682f39a7e4807c9602b74095fe603dcf90016c2bc87958d006bc8a2a7e`
+- Original runtime JSON SHA-256: `09114feb4e72f311e99ffed39da786a3a32e1359765071bc1441fbbc7c61724c`
+- Adjudication JSON SHA-256: `e38bd1996415692dc88420b89993b92211ed0f7013c6f041908b7963958f7660`
+
+### Evidence references
+
+- `tests/private_persona_isolation.py`
+- `evidence/onyx-private-persona-isolation.json`
+- `evidence/onyx-private-persona-isolation-adjudication.json`
