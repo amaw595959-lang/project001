@@ -440,3 +440,77 @@ the handler has not yet been tested as an end-to-end storage flow.
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/s3_key_utils.py
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py
+
+## 17. Persona-Avatar Authorization Source Trace
+
+**Evidence timestamp:** 2026-11-20T21:09:55.466108+00:00
+**Source commit:** `3835aa4294198de48d318536081ea09fbde7aea6`
+**Route:** `/persona/{persona_id}/avatar`
+
+### Source verification results
+
+| Check | Result |
+|---|---|
+| `avatar_route_declared` | PASS |
+| `persona_router_prefix` | PASS |
+| `persona_router_registered` | PASS |
+| `basic_access_permission` | PASS |
+| `requesting_user_passed_to_persona_lookup` | PASS |
+| `persona_read_mode` | PASS |
+| `persona_checked_before_file_read` | PASS |
+| `file_origin_checked` | PASS |
+| `missing_avatar_returns_not_found` | PASS |
+| `global_permission_paths_present` | PASS |
+| `ownership_and_sharing_paths_present` | PASS |
+
+**Result:** PASS — 11/11 static source checks.
+
+### Observed source relationships
+
+1. Persona-avatar route registered.
+2. BASIC_ACCESS permission dependency declared.
+3. Requesting user passed to persona lookup.
+4. Persona visibility logic includes ownership, sharing and privileged access.
+5. File record examined after persona lookup.
+6. File origin checked before storage read.
+7. FileStore read called after preceding checks.
+
+### Security interpretation
+
+The source contains authorization-related checks before the
+avatar file-store read. Their runtime enforcement and completeness
+have not yet been independently demonstrated.
+
+The trace does not prove cross-user isolation, cross-tenant
+isolation, or successful retrieval of an authorized avatar.
+
+### Test methodology correction
+
+An earlier static check failed because AST source-segment
+extraction excluded the route decorator. The check was
+corrected to inspect the function's AST decorator_list.
+The corrected 11-check assessment passed.
+
+### Next verification tasks
+
+- [ ] Confirm unauthenticated avatar requests are denied.
+- [ ] Test authorized access to a synthetic avatar.
+- [ ] Test cross-user denial using a private synthetic persona.
+- [ ] Verify intentional sharing behavior.
+- [ ] Correlate an authorized avatar request with storage access.
+- [ ] Confirm relevant controls after role or sharing changes.
+
+### Evidence integrity
+
+- Script SHA-256: `03353995adac5a379eba4d9d8188ac1a8837bdd4910d78acb8d14800aad43e40`
+- JSON SHA-256: `e3d0db10561a9c4b38c2d9311ad3ac40210acc6d871300024d000f6eb0a18160`
+
+### Evidence references
+
+- `tests/persona_avatar_authorization_trace.py`
+- `evidence/onyx-persona-avatar-authorization-trace.json`
+
+### Source references
+
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/db/persona.py

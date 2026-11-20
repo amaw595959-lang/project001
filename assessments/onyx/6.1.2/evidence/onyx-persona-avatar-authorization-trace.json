@@ -1,0 +1,52 @@
+{
+  "assessment": "WP-6.1.2",
+  "timestamp_utc": "2026-11-20T21:09:55.466108+00:00",
+  "source_commit": "3835aa4294198de48d318536081ea09fbde7aea6",
+  "source_clean": true,
+  "method": "Static AST and source-text verification",
+  "target_route": "/persona/{persona_id}/avatar",
+  "functions": {
+    "get_persona_avatar": {
+      "file": "backend/onyx/server/features/persona/api.py",
+      "start_line": 805,
+      "end_line": 867
+    },
+    "get_persona_by_id": {
+      "file": "backend/onyx/db/persona.py",
+      "start_line": 1966,
+      "end_line": 2028
+    }
+  },
+  "execution_order_lines": {
+    "persona_lookup": 814,
+    "file_record_lookup": 830,
+    "file_read": 862
+  },
+  "source_hashes": {
+    "backend/onyx/server/features/persona/api.py": "29ae9c9567c62486a616f1c827125449c9b80d0c1b6d5d97da1dad52704246fb",
+    "backend/onyx/db/persona.py": "f49569f9e73e88c2b525ea59e48b2f6580c0ab72678e1cf9b4aebfd0ffd515fc",
+    "backend/onyx/db/file_record.py": "84658f424137cb5e0a01b01e8c5bdf1baa9f0c2b09569bf160b5ab310907bb7a",
+    "backend/onyx/file_store/file_store.py": "3703ad9336e12475190f04fb2c96775e672b6919cb5a925b5ee1230bfd61b6aa",
+    "backend/onyx/main.py": "6c942d8f5890cc51a9bca0475a4f4c06bc9baf7305df2e89a72e8fc7211225a1"
+  },
+  "checks": {
+    "avatar_route_declared": true,
+    "persona_router_prefix": true,
+    "persona_router_registered": true,
+    "basic_access_permission": true,
+    "requesting_user_passed_to_persona_lookup": true,
+    "persona_read_mode": true,
+    "persona_checked_before_file_read": true,
+    "file_origin_checked": true,
+    "missing_avatar_returns_not_found": true,
+    "global_permission_paths_present": true,
+    "ownership_and_sharing_paths_present": true
+  },
+  "overall": "PASS",
+  "limitations": [
+    "Static source relationships, not runtime enforcement evidence",
+    "Does not test authorized or unauthorized avatar retrieval",
+    "Does not test tenant or user isolation",
+    "Does not prove deployed image provenance"
+  ]
+}
