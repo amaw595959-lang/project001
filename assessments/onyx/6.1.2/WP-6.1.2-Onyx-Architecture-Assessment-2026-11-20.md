@@ -1178,15 +1178,15 @@ application-wide or production security certification.
   migrated original workload or administrative key rotation has occurred.
   Remediation requires a separately authorized reversible change, verification,
   retest and independent evidence before closure.
-- Tracking issue: [#3 — ONYX-S3-001 remediation](../../../../issues/3).
+- Tracking issue: [#3 — ONYX-S3-001 remediation](https://github.com/amaw595959-lang/project001/issues/3).
 
 ### Explicitly deferred / not independently verified
 
 | ID | Unverified or partial scope | Tracking |
 |---|---|---|
-| FOLLOWUP-612-01 | S3/PostgreSQL partial-failure consistency, compensation and rollback | [#4](../../../../issues/4) |
-| FOLLOWUP-612-02 | Multi-tenant context, object isolation, connector and cache boundaries | [#5](../../../../issues/5) |
-| FOLLOWUP-612-03 | Network/transport controls, service identities, Redis/OpenSearch broad access controls, and frontend/background/MCP/inference data flows not running in the assessed lab | [#6](../../../../issues/6) |
+| FOLLOWUP-612-01 | S3/PostgreSQL partial-failure consistency, compensation and rollback | [#4](https://github.com/amaw595959-lang/project001/issues/4) |
+| FOLLOWUP-612-02 | Multi-tenant context, object isolation, connector and cache boundaries | [#5](https://github.com/amaw595959-lang/project001/issues/5) |
+| FOLLOWUP-612-03 | Network/transport controls, service identities, Redis/OpenSearch broad access controls, and frontend/background/MCP/inference data flows not running in the assessed lab | [#6](https://github.com/amaw595959-lang/project001/issues/6) |
 
 Other historical outstanding tasks may remain beyond these grouped tracking
 issues. These are **not tested**, not automatically findings. In particular,
