@@ -1,0 +1,38 @@
+{
+  "assessment": "WP-6.1.2",
+  "timestamp_utc": "2026-11-20T20:32:44.973474+00:00",
+  "source": "Onyx API container",
+  "test_type": "TCP connect only",
+  "results": [
+    {
+      "component": "PostgreSQL",
+      "hostname": "relational_db",
+      "port": 5432,
+      "tcp_status": "REACHABLE"
+    },
+    {
+      "component": "Redis",
+      "hostname": "cache",
+      "port": 6379,
+      "tcp_status": "REACHABLE"
+    },
+    {
+      "component": "OpenSearch",
+      "hostname": "opensearch",
+      "port": 9200,
+      "tcp_status": "REACHABLE"
+    },
+    {
+      "component": "SeaweedFS S3",
+      "hostname": "object-store",
+      "port": 8333,
+      "tcp_status": "REACHABLE"
+    }
+  ],
+  "limitations": [
+    "TCP connectivity does not prove authentication",
+    "TCP connectivity does not prove application data flow",
+    "TCP connectivity does not prove a service is healthy",
+    "Results describe only this lab at this timestamp"
+  ]
+}

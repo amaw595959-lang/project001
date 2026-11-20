@@ -1,0 +1,108 @@
+{
+  "assessment": "WP-6.1.2",
+  "timestamp_utc": "2026-11-20T20:41:09.579375+00:00",
+  "api_configuration_allowlist": {
+    "AUTH_TYPE": "basic",
+    "DISABLE_MODEL_SERVER": "true",
+    "FILE_STORE_BACKEND": "s3",
+    "POSTGRES_HOST": "relational_db",
+    "POSTGRES_PORT": "NOT_SET",
+    "REDIS_HOST": "cache",
+    "OPENSEARCH_HOST": "opensearch",
+    "MODEL_SERVER_HOST": "inference_model_server",
+    "INDEXING_MODEL_SERVER_HOST": "indexing_model_server"
+  },
+  "s3_destination": {
+    "scheme": "http",
+    "hostname": "object-store",
+    "port": 8333
+  },
+  "running_service_mounts": {
+    "api_server": [
+      {
+        "type": "volume",
+        "destination": "/app/file-system",
+        "read_only": false
+      },
+      {
+        "type": "volume",
+        "destination": "/var/log/onyx",
+        "read_only": false
+      }
+    ],
+    "cache": [],
+    "object-store": [
+      {
+        "type": "volume",
+        "destination": "/data",
+        "read_only": false
+      }
+    ],
+    "opensearch": [
+      {
+        "type": "volume",
+        "destination": "/usr/share/opensearch/data",
+        "read_only": false
+      }
+    ],
+    "relational_db": [
+      {
+        "type": "volume",
+        "destination": "/var/lib/postgresql/data",
+        "read_only": false
+      }
+    ]
+  },
+  "reachability": [
+    {
+      "component": "PostgreSQL",
+      "hostname": "relational_db",
+      "port": 5432,
+      "tcp_status": "REACHABLE"
+    },
+    {
+      "component": "Redis",
+      "hostname": "cache",
+      "port": 6379,
+      "tcp_status": "REACHABLE"
+    },
+    {
+      "component": "OpenSearch",
+      "hostname": "opensearch",
+      "port": 9200,
+      "tcp_status": "REACHABLE"
+    },
+    {
+      "component": "SeaweedFS S3",
+      "hostname": "object-store",
+      "port": 8333,
+      "tcp_status": "REACHABLE"
+    }
+  ],
+  "scope": {
+    "running_services": [
+      "api_server",
+      "cache",
+      "object-store",
+      "opensearch",
+      "relational_db"
+    ],
+    "not_running": [
+      "background",
+      "code-interpreter",
+      "indexing_model_server",
+      "inference_model_server",
+      "mcp_server",
+      "minio",
+      "nginx",
+      "object-store-copy",
+      "web_server"
+    ]
+  },
+  "limitations": [
+    "Configuration does not prove a data flow was exercised",
+    "Mount metadata does not verify stored data",
+    "TCP access does not prove successful authentication",
+    "Workload identity permissions require separate verification"
+  ]
+}
