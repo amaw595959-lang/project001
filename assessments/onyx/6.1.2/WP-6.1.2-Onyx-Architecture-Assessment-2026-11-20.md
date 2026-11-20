@@ -68,7 +68,7 @@ Diagram conventions:
 | DF-03 | API -> PostgreSQL (`relational_db:5432`) | TCP reachable; role mutations and persisted state corroborated by 6.1.1 tests | Selected role operations verified; broader database flows untested |
 | DF-04 | API -> Redis (`cache:6379`) | Synthetic login, Redis session key and logout behavior observed | Tested session lifecycle verified; broader Redis operations untested |
 | DF-05 | API-container test client -> OpenSearch (`opensearch:9200`) | Direct authenticated metadata requests succeeded | Client-to-service boundary verified; Onyx search and indexing not tested |
-| DF-06 | API-container test client -> SeaweedFS S3 (`object-store:8333`) | Authenticated bucket HEAD/list succeeded; unsigned bucket HEAD denied | Direct S3 read-only access verified; Onyx file operations untested |
+| DF-06 | API-container test client -> SeaweedFS S3 (`object-store:8333`) | Authenticated synthetic object create/read/delete, SHA-256 integrity and deletion verified; unsigned GET returned 403 | Direct S3 lifecycle verified; Onyx file API and tenant isolation untested |
 | DF-07 | Browser -> frontend/reverse proxy -> API | Frontend and nginx not running | Not tested |
 | DF-08 | Background workers -> dependencies | Background service not running | Not tested |
 | DF-09 | API -> inference model server | Model server disabled and not running | Not tested |
@@ -132,7 +132,7 @@ rather than treating product-name differences as vulnerabilities.
 - [ ] Trace a real authenticated API request through application code.
 - [ ] Verify broader Redis operations and credential/ACL security (synthetic session lifecycle verified in Section 12).
 - [ ] Verify Onyx application-level search/index operations and OpenSearch access controls (direct authenticated metadata access verified in Section 13).
-- [ ] Verify S3 object operations and object-level authorization (read-only bucket checks completed in Section 14).
+- [ ] Verify Onyx file API operations and object-level authorization (direct synthetic S3 lifecycle completed in Section 15).
 - [ ] Review service credentials and least privilege.
 - [ ] Review internal transport protection and network segmentation.
 - [ ] Trace frontend and browser traffic in a separately provisioned lab.
@@ -286,8 +286,8 @@ No unauthorized object access or cross-tenant access was demonstrated.
 
 ### Outstanding assessment tasks
 
-- Verify synthetic object create, read and delete operations.
-- Verify cleanup and independent post-deletion state.
+- [x] Verify synthetic object create, read and delete operations (Section 15).
+- [x] Verify cleanup through authenticated post-deletion HEAD (Section 15).
 - Assess workload-credential privileges and least privilege.
 - Assess object-level and cross-tenant authorization.
 - Trace actual Onyx file-store operations.
@@ -302,3 +302,71 @@ No unauthorized object access or cross-tenant access was demonstrated.
 
 - `tests/s3_boundary.py`
 - `evidence/onyx-s3-boundary.json`
+
+## 15. Controlled S3 Object Lifecycle Verification
+
+**Evidence timestamp:** 2026-11-20T21:01:04.075308+00:00
+
+**Source:** Synthetic S3 test client executed inside the Onyx API container.
+
+**Destination:** `object-store:8333`
+
+### Verified observations
+
+- Authenticated bucket access: PASS
+- Synthetic object initially absent: PASS
+- Synthetic object created: PASS
+- Synthetic object retrieved: PASS
+- Retrieved content SHA-256 matched expected content: PASS
+- Unsigned GET denied: HTTP 403
+- Synthetic object delete request succeeded: PASS
+- Authenticated HEAD confirmed object absence after deletion: PASS
+- Private recovery record absent after successful cleanup: verified separately
+- Overall: PASS, 8/8 checks
+
+### Security interpretation
+
+A direct authenticated S3 client successfully completed one synthetic
+object create/read/delete lifecycle. The retrieved content matched
+its expected digest. An unsigned GET was denied with HTTP 403.
+
+The final authenticated HEAD returned HTTP 404, consistent with
+the test object being absent after deletion.
+
+The test did not exercise an Onyx file API handler and did not establish
+cross-user isolation, cross-tenant isolation or least-privilege credentials.
+
+The storage endpoint used HTTP inside the Docker network; its
+transport-security implications remain subject to threat modeling.
+
+### Failed preflight and correction
+
+An earlier attempt stopped with FileNotFoundError while attempting
+to create a private recovery record under `/workspaces` inside the
+API container. The synthetic object upload had not started.
+
+The script was corrected to use a writable mounted directory under
+`/var/log/onyx`, and the complete lifecycle subsequently passed.
+
+The failed preflight is retained as diagnostic evidence. Its cleanup
+status must not be interpreted as proof that an object remained stored.
+
+### Outstanding verification
+
+- Trace an actual Onyx file-store API operation.
+- Assess user and tenant authorization independently of S3 administrator access.
+- Review the privileges associated with the S3 workload credentials.
+- Assess network isolation and plaintext HTTP transport assumptions.
+- Repeat selected checks under appropriately restricted credentials.
+
+### Evidence SHA-256
+
+- Test script: `5c261257b31cb70f3333e4192c5df1adb389b65e9c93837708be5cd34ef30f17`
+- Successful JSON: `09f3c48fdb920ec01211b67d85e07b80f6b8a9d3f128a481dee1f26feed28c98`
+- Failed preflight JSON: `eb0965897b5dcfbc609119d5a6a138d07636f27801b1eb34bee74673b362d2d3`
+
+### Evidence references
+
+- `tests/s3_object_lifecycle.py`
+- `evidence/onyx-s3-object-lifecycle.json`
+- `evidence/onyx-s3-object-lifecycle-preflight-failed.json`

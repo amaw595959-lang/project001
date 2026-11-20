@@ -1,0 +1,23 @@
+{
+  "assessment": "WP-6.1.2",
+  "timestamp_utc": "2026-11-20T20:59:28.473027+00:00",
+  "flow": "API-container S3 client -> SeaweedFS object lifecycle",
+  "target": "Onyx isolated laboratory",
+  "object_key_sha256": "1966e3fcf49e2305015bf433e1acca275520236abc8a1aa08093fc957efa371e",
+  "synthetic_payload_sha256": "37610decdae08a24bd168eae5156ac9c4dcdd6ff8ecee336331382ecce2c75d1",
+  "unsigned_get_http_status": null,
+  "checks": {
+    "authenticated_bucket_access": true,
+    "synthetic_key_initially_absent": true
+  },
+  "final_object_absent": false,
+  "error_type": "FileNotFoundError",
+  "overall": "FAIL_OR_INCONCLUSIVE",
+  "limitations": [
+    "Direct S3 client, not Onyx application file API",
+    "No tenant isolation or object-level ACL comparison",
+    "No other bucket objects inspected or modified",
+    "Cleanup verified using authenticated HEAD",
+    "S3 transport uses HTTP within the Docker network"
+  ]
+}
