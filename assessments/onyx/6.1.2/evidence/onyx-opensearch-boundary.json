@@ -1,0 +1,31 @@
+{
+  "assessment": "WP-6.1.2",
+  "timestamp_utc": "2026-11-20T20:52:08.098104+00:00",
+  "source": "Onyx API container",
+  "destination": "opensearch:9200",
+  "operation": "Read-only authenticated OpenSearch API requests",
+  "transport": {
+    "tls_enabled": true,
+    "server_certificate_verification": false,
+    "authentication_method": "basic"
+  },
+  "cluster": {
+    "version": "3.6.0",
+    "health": "yellow",
+    "nodes": 1,
+    "visible_open_indices": 5
+  },
+  "checks": {
+    "authenticated_info_request": true,
+    "cluster_health_request": true,
+    "index_metadata_request": true
+  },
+  "limitations": [
+    "Uses credentials from the API container environment",
+    "Does not prove an Onyx API handler performed a search",
+    "Does not prove indexing or retrieval correctness",
+    "No document content was queried",
+    "Index count may include system indices",
+    "No access-control bypass was tested"
+  ]
+}

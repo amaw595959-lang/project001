@@ -65,9 +65,9 @@ Diagram conventions:
 |---|---|---|---|
 | DF-01 | In-container synthetic test client -> API | 6.1.1 live HTTP tests | Verified for tested requests |
 | DF-02 | API -> PostgreSQL role changes | HTTP mutation and independent persisted-state checks | Behavior corroborated |
-| DF-03 | API -> PostgreSQL (`relational_db:5432`) | REACHABLE TCP; configured destination | Application data operations not verified |
-| DF-04 | API -> Redis (`cache:6379`) | REACHABLE TCP; configured destination | Application data operations not verified |
-| DF-05 | API -> OpenSearch (`opensearch:9200`) | REACHABLE TCP; configured destination | Application data operations not verified |
+| DF-03 | API -> PostgreSQL (`relational_db:5432`) | TCP reachable; role mutations and persisted state corroborated by 6.1.1 tests | Selected role operations verified; broader database flows untested |
+| DF-04 | API -> Redis (`cache:6379`) | Synthetic login, Redis session key and logout behavior observed | Tested session lifecycle verified; broader Redis operations untested |
+| DF-05 | API-container test client -> OpenSearch (`opensearch:9200`) | Direct authenticated metadata requests succeeded | Client-to-service boundary verified; Onyx search and indexing not tested |
 | DF-06 | API -> SeaweedFS S3 (`object-store:8333`) | REACHABLE TCP; configured destination | Application data operations not verified |
 | DF-07 | Browser -> frontend/reverse proxy -> API | Frontend and nginx not running | Not tested |
 | DF-08 | Background workers -> dependencies | Background service not running | Not tested |
@@ -131,7 +131,7 @@ rather than treating product-name differences as vulnerabilities.
 
 - [ ] Trace a real authenticated API request through application code.
 - [ ] Verify broader Redis operations and credential/ACL security (synthetic session lifecycle verified in Section 12).
-- [ ] Confirm actual OpenSearch queries and access controls.
+- [ ] Verify Onyx application-level search/index operations and OpenSearch access controls (direct authenticated metadata access verified in Section 13).
 - [ ] Confirm authorized and unauthorized S3 object operations.
 - [ ] Review service credentials and least privilege.
 - [ ] Review internal transport protection and network segmentation.
@@ -204,3 +204,53 @@ tombstone value.
 
 - `tests/redis_session_flow.py`
 - `evidence/onyx-redis-session-flow.json`
+
+## 13. Authenticated OpenSearch Boundary Verification
+
+**Evidence timestamp:** 2026-11-20T20:52:08.098104+00:00
+
+**Source:** Test script executed within the Onyx API container.
+
+**Destination:** `opensearch:9200`
+
+### Observations
+
+- OpenSearch version: `3.6.0`
+- Cluster health: `yellow`
+- Cluster nodes: 1
+- Visible open indices: 5
+- TLS enabled: True
+- Server certificate verification: False
+- Authentication method: `basic`
+- Read-only metadata requests: 3/3 successful
+
+### Security interpretation
+
+Direct authenticated OpenSearch access from the API container was verified.
+
+TLS is enabled, but server certificate verification was disabled in
+the tested client configuration. Server-identity assurance requires
+further assessment.
+
+The yellow cluster status indicates incomplete replica allocation.
+The specific allocation cause was not independently diagnosed.
+
+The test used credentials supplied to the API container and queried
+OpenSearch directly. It did not demonstrate an Onyx application
+search or indexing operation.
+
+No unauthorized access, certificate-interception attack, search-data
+disclosure, or exploitable vulnerability was demonstrated.
+
+### Remaining work
+
+- Trace a real Onyx search or indexing request to OpenSearch.
+- Review OpenSearch credential privileges and least-privilege options.
+- Assess server certificate validation and internal transport trust.
+- Verify index and document access boundaries using synthetic fixtures.
+- Investigate the cluster's unassigned replicas if operationally relevant.
+
+### Evidence references and SHA-256
+
+- `tests/opensearch_boundary.py`: `1db562cf7bf7ea01725b25bf66db351538c1c111415415cee536476ae05a511a`
+- `evidence/onyx-opensearch-boundary.json`: `8a44f7c777d8b50a7b6bfb213ac91cc4570c4bf5f88e434527ffef9c2688337e`
