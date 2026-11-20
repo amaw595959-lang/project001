@@ -1074,3 +1074,67 @@ current reconciliation, not a retroactive rewrite.
 - https://github.com/seaweedfs/seaweedfs/blob/4.47/weed/s3api/auth_credentials.go
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/deployment/docker_compose/docker-compose.yml
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py
+
+## 24. Restricted S3 workload identity — isolated remediation feasibility assessment
+
+**Assessment:** Onyx v5.1.3 / SeaweedFS 4.47; finding `ONYX-S3-001`.
+
+**Disposition:** Sandbox control validation **PASS**; original Onyx deployment **NOT REMEDIATED**.
+The Section 23 administrative credential-reuse finding remains **OPEN**.
+
+### Purpose and isolation
+
+- Created separate SeaweedFS 4.47 instance on a dedicated internal Docker network, without published host ports, and a dedicated volume.
+- Generated private, independent administrator and application S3 credentials, with the application identity scoped to `Read`, `Write`, and `List` on `onyx-file-store-bucket`; no application `Admin` action.
+- Provisioned the application bucket and an unrelated synthetic bucket using the sandbox administrator.
+- Tested the isolated storage endpoint only. The original API workload, its administrator storage credentials, and original database were not migrated.
+
+### Observations
+
+| Control or workflow | Verified observation |
+|---|---|
+| Designated-bucket HEAD | HTTP 200 with restricted identity |
+| Unrelated-bucket HEAD and LIST | HTTP 403 |
+| S3 `ListBuckets` | Only authorized bucket visible |
+| IAM `ListUsers` | HTTP 403 |
+| Restricted S3 object create/head/read/digest/delete/absence | **7/7 PASS** |
+| Actual Onyx `S3BackedFileStore` initialize/save/read/size/delete | **17/17 PASS** in isolated test runner |
+| FileStore metadata | **In-memory stub**, not PostgreSQL |
+| Post-test object absence | Two independent read-only HEAD checks, each HTTP 404 |
+| Sandbox teardown | PASS; both buckets empty; dedicated container/network/volume removed; private sandbox config and credential files unlinked |
+
+### Interpretation and limits
+
+The tested Onyx FileStore backend is compatible with a bucket-scoped S3 identity for the selected operations.
+This is a **restricted-identity feasibility demonstration**, not deployed remediation.
+It does **not** establish end-to-end HTTP/database compatibility, successful migration and rotation of the original administrative credentials, tenant-level object isolation within the permitted bucket, or full production authorization coverage.
+The standalone sandbox configuration used an S3 API credential file; persistent secret governance, credential rotation and transport security require separate assessment.
+Bucket listing verified absence of visible objects before teardown, not forensic erasure of deleted data.
+
+### Outstanding actions
+
+1. Plan and authorize a separate, reversible migration of the original Onyx API to dedicated restricted S3 credentials; preprovision the bucket.
+2. Retest live Onyx HTTP upload/read/delete paths with actual PostgreSQL metadata, confirm the API has no administrative storage credentials, and verify administrative IAM and cross-bucket requests remain denied.
+3. Validate failure/rollback behavior across S3 and PostgreSQL.
+4. Continue cross-tenant isolation, service identities, internal transport and additional runtime data-flow assessments under their respective scopes.
+5. Keep `ONYX-S3-001` **OPEN** until the original workload is remediated and independently retested.
+
+### Section 24 evidence integrity (SHA-256)
+
+| Artifact | SHA-256 |
+|---|---|
+| `tests/onyx_s3_restricted_object_lifecycle.py` | `c242c31f8971eaacc826e2506ee993e0aa5eeaa5e3b7c4eafc3003cbe55c57f9` |
+| `tests/onyx_s3_restricted_filestore_compatibility.py` | `741abd163ee99c74d3d5e1d36162a66b7a3c89f5d8904142b1c4b21f31c4826f` |
+| `tests/onyx_s3_sandbox_teardown.py` | `64fd3440b740438956349e4e741eb8c8751d2b53603104131a3fc1092876c48e` |
+| `tests/section24_publish_workpaper.py` | `f08242f7bc3bd185f4d6739830303169772930728a8da9d3aed863d16a0ecaf5` |
+| `evidence/onyx-s3-restricted-object-lifecycle.json` | `ff8827438e3b8472c240335271b4158255e305a2c4b62f2f50a320af14f5385b` |
+| `evidence/onyx-s3-restricted-object-cleanup-verified.json` | `3de6dc3f7040d91a981f52ab3df52c49274683d65b39078aee1b03ac4e777ee9` |
+| `evidence/onyx-s3-restricted-filestore-compatibility.json` | `254ddf877ad5d1dfc868d95077e0f6f78aef591f9bf636261bab839dd6774fa8` |
+| `evidence/onyx-s3-restricted-filestore-cleanup-verified.json` | `e1b54756fd912b4aefed72e0d054dbd5f2a9394b7c886f51028a8244292e39e0` |
+| `evidence/onyx-s3-sandbox-teardown.json` | `64d718297b1cc5271e2713256d5e8439a1d90c7a1fc9e4f79be68229b0961988` |
+
+### Source references
+
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py
+- https://github.com/seaweedfs/seaweedfs/blob/4.47/weed/command/s3.go
+- https://github.com/seaweedfs/seaweedfs/blob/4.47/weed/s3api/auth_credentials.go

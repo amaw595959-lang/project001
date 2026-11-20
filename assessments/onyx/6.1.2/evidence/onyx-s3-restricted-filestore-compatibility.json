@@ -1,0 +1,50 @@
+{
+  "assessment": "WP-6.1.2-Section-24.8",
+  "checks": {
+    "bucket_visibility_scoped": true,
+    "factory_uses_sandbox_configuration": true,
+    "filestore_delete_file": true,
+    "filestore_get_file_size": true,
+    "filestore_has_file": true,
+    "filestore_initialize": true,
+    "filestore_read_file_digest": true,
+    "filestore_read_file_record": true,
+    "filestore_save_file": true,
+    "iam_enumeration_denied": true,
+    "metadata_adapter_removed": true,
+    "metadata_adapter_written": true,
+    "restricted_identity_separate": true,
+    "s3_object_head": true,
+    "synthetic_object_deleted": true,
+    "synthetic_object_initially_absent": true,
+    "unrelated_bucket_denied": true
+  },
+  "checks_expected": 17,
+  "checks_passed": 17,
+  "error_type": null,
+  "evidence_timestamp_utc": "2026-11-20T22:54:16.839106+00:00",
+  "http_statuses": {
+    "iam_enumeration_denied": 403,
+    "s3_object_head": 200,
+    "synthetic_object_deleted": 404,
+    "synthetic_object_initially_absent": 404,
+    "unrelated_bucket_denied": 403
+  },
+  "limitations": [
+    "Real Onyx S3BackedFileStore implementation and factory used",
+    "Database metadata calls replaced with an in-memory adapter",
+    "No live PostgreSQL or HTTP upload endpoint was exercised",
+    "Original Onyx runtime credentials and storage remain unchanged"
+  ],
+  "metadata_adapter": "in-memory-stub",
+  "onyx_s3_file_store_actual_code": true,
+  "overall": "PASS",
+  "production_database_used": false,
+  "read_only": false,
+  "recovery_journal_retained_for_review": true,
+  "runner_exit_code": 0,
+  "sandbox_only": true,
+  "started_from_verified_step_24_7": true,
+  "synthetic_key_sha256": "422338f93da2917266cf2f9efdd456b5f677f80f8395ba632b9defacf8b8d596",
+  "synthetic_object_deletion_verified": true
+}

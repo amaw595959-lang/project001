@@ -1,0 +1,27 @@
+{
+  "assessment": "WP-6.1.2-Section-24-sandbox-teardown",
+  "both_buckets_empty_before_teardown": true,
+  "both_independent_object_deletion_checks_passed": true,
+  "completed_utc": "2026-11-20T23:01:53.663596+00:00",
+  "evidence_validated": true,
+  "filestore_compatibility_checks_passed": 17,
+  "limitations": [
+    "Original Onyx API still has administrative storage credentials",
+    "FileStore compatibility used an in-memory metadata adapter",
+    "Bucket listing verified absence of visible objects, not forensic erasure",
+    "Removing files is not cryptographic secret destruction",
+    "No original Onyx runtime or PostgreSQL integration retest performed"
+  ],
+  "object_lifecycle_checks_passed": 7,
+  "only_expected_sandbox_buckets_present": true,
+  "overall": "PASS",
+  "prior_recovery_journals_absent": true,
+  "private_credentials_files_absent": true,
+  "production_onyx_remediation_performed": false,
+  "read_only": false,
+  "sandbox_container_absent": true,
+  "sandbox_network_absent": true,
+  "sandbox_volume_absent": true,
+  "started_utc": "2026-11-20T23:01:31.720504+00:00",
+  "teardown_recovery_journal_resolved": true
+}

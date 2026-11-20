@@ -1,0 +1,13 @@
+{
+  "assessment": "WP-6.1.2-Section-24.8-independent-cleanup-check",
+  "checked_utc": "2026-11-20T22:55:47.957375+00:00",
+  "error_type": null,
+  "head_status": 404,
+  "object_absent": true,
+  "overall": "PASS",
+  "prior_evidence_sha256": "254ddf877ad5d1dfc868d95077e0f6f78aef591f9bf636261bab839dd6774fa8",
+  "read_only": true,
+  "recovery_journal_resolved": true,
+  "sandbox_only": true,
+  "synthetic_key_sha256": "422338f93da2917266cf2f9efdd456b5f677f80f8395ba632b9defacf8b8d596"
+}

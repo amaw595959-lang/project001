@@ -1,0 +1,32 @@
+{
+  "assessment": "WP-6.1.2-Section-24.7",
+  "checks": {
+    "bucket_head": true,
+    "delete_object": true,
+    "deleted_object_absent": true,
+    "get_object_digest": true,
+    "head_object": true,
+    "object_initially_absent": true,
+    "put_object": true
+  },
+  "checks_expected": 7,
+  "checks_passed": 7,
+  "error_type": null,
+  "http_statuses": {
+    "bucket_head": 200,
+    "delete_object": 204,
+    "deleted_object_absent": 404,
+    "get_object_digest": 200,
+    "head_object": 200,
+    "object_initially_absent": 404,
+    "put_object": 200
+  },
+  "journal_retained_for_independent_verification": true,
+  "overall": "PASS",
+  "payload_sha256": "917723ed8bc8f485f9359925fe10ccd33b42b2cb044436c8ae92076d3ee4863d",
+  "restricted_identity_only": true,
+  "runner_exit_code": 0,
+  "sandbox_only": true,
+  "synthetic_key_sha256": "f2a443180203bcc94c34613ade0ce3256bbd850ea1a4030b44c522438bdbe34b",
+  "synthetic_object_deletion_verified": true
+}
