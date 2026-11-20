@@ -1,0 +1,21 @@
+{
+  "assessment": "WP-6.1.2",
+  "timestamp_utc": "2026-11-20T20:56:02.119642+00:00",
+  "flow": "API-container test client -> SeaweedFS S3",
+  "destination": "object-store:8333",
+  "transport": "HTTP, internal Docker network",
+  "authentication": "S3 Signature V4",
+  "checks": {
+    "authenticated_bucket_head": "PASS",
+    "authenticated_read_only_listing": "PASS",
+    "unsigned_bucket_head": "HTTP_403"
+  },
+  "overall": "PASS",
+  "limitations": [
+    "Direct S3 client test, not an Onyx file API request",
+    "No existing object content read or disclosed",
+    "No objects or buckets created, changed or removed",
+    "Unsigned HEAD result alone is not a complete ACL assessment",
+    "No cross-tenant object authorization tested"
+  ]
+}

@@ -68,7 +68,7 @@ Diagram conventions:
 | DF-03 | API -> PostgreSQL (`relational_db:5432`) | TCP reachable; role mutations and persisted state corroborated by 6.1.1 tests | Selected role operations verified; broader database flows untested |
 | DF-04 | API -> Redis (`cache:6379`) | Synthetic login, Redis session key and logout behavior observed | Tested session lifecycle verified; broader Redis operations untested |
 | DF-05 | API-container test client -> OpenSearch (`opensearch:9200`) | Direct authenticated metadata requests succeeded | Client-to-service boundary verified; Onyx search and indexing not tested |
-| DF-06 | API -> SeaweedFS S3 (`object-store:8333`) | REACHABLE TCP; configured destination | Application data operations not verified |
+| DF-06 | API-container test client -> SeaweedFS S3 (`object-store:8333`) | Authenticated bucket HEAD/list succeeded; unsigned bucket HEAD denied | Direct S3 read-only access verified; Onyx file operations untested |
 | DF-07 | Browser -> frontend/reverse proxy -> API | Frontend and nginx not running | Not tested |
 | DF-08 | Background workers -> dependencies | Background service not running | Not tested |
 | DF-09 | API -> inference model server | Model server disabled and not running | Not tested |
@@ -132,7 +132,7 @@ rather than treating product-name differences as vulnerabilities.
 - [ ] Trace a real authenticated API request through application code.
 - [ ] Verify broader Redis operations and credential/ACL security (synthetic session lifecycle verified in Section 12).
 - [ ] Verify Onyx application-level search/index operations and OpenSearch access controls (direct authenticated metadata access verified in Section 13).
-- [ ] Confirm authorized and unauthorized S3 object operations.
+- [ ] Verify S3 object operations and object-level authorization (read-only bucket checks completed in Section 14).
 - [ ] Review service credentials and least privilege.
 - [ ] Review internal transport protection and network segmentation.
 - [ ] Trace frontend and browser traffic in a separately provisioned lab.
@@ -254,3 +254,51 @@ disclosure, or exploitable vulnerability was demonstrated.
 
 - `tests/opensearch_boundary.py`: `1db562cf7bf7ea01725b25bf66db351538c1c111415415cee536476ae05a511a`
 - `evidence/onyx-opensearch-boundary.json`: `8a44f7c777d8b50a7b6bfb213ac91cc4570c4bf5f88e434527ffef9c2688337e`
+
+## 14. Read-only S3 Authentication Boundary Verification
+
+**Evidence timestamp:** 2026-11-20T20:56:02.119642+00:00
+
+**Source:** Synthetic test client running inside the Onyx API container.
+
+**Destination:** `object-store:8333`
+
+### Verified observations
+
+- Authenticated bucket metadata request: PASS
+- Authenticated read-only object listing: PASS
+- Unsigned bucket metadata request: HTTP 403
+- Transport: HTTP over the internal Docker network
+- Overall: PASS
+
+### Security interpretation
+
+The configured storage credentials were accepted by SeaweedFS S3.
+An unsigned request for the tested bucket metadata was denied.
+
+The S3 endpoint uses plaintext HTTP at the application-transport layer.
+The network trust model and credential privileges require further review.
+
+This test used a direct S3 client, not an Onyx application file API.
+No object contents were read, created, modified or deleted.
+
+No unauthorized object access or cross-tenant access was demonstrated.
+
+### Outstanding assessment tasks
+
+- Verify synthetic object create, read and delete operations.
+- Verify cleanup and independent post-deletion state.
+- Assess workload-credential privileges and least privilege.
+- Assess object-level and cross-tenant authorization.
+- Trace actual Onyx file-store operations.
+- Assess transport security in the intended deployment.
+
+### Evidence integrity
+
+- Script SHA-256: `bd6b1ed19c2996d54ee78e857833f192227bddcc67fe3dff862084647efe3011`
+- JSON SHA-256: `3d746358bc536a50a7e483f280d8e2da9e59b33630fa1750d3151522d4ce4aa0`
+
+### Evidence references
+
+- `tests/s3_boundary.py`
+- `evidence/onyx-s3-boundary.json`
