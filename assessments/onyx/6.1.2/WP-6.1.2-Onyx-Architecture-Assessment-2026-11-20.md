@@ -644,3 +644,109 @@ database record.
 - `tests/private_persona_isolation.py`
 - `evidence/onyx-private-persona-isolation.json`
 - `evidence/onyx-private-persona-isolation-adjudication.json`
+
+## 20. Synthetic Avatar Ownership and File-Level Authorization
+
+**Execution timestamp:** 2026-11-20T21:41:48.781006+00:00
+
+**Target:** Isolated Onyx v5.1.3 laboratory.
+
+**Assessment method:** Controlled synthetic avatar lifecycle,
+authenticated HTTP requests, PostgreSQL file-record inspection,
+S3 object checks, and ownership-transition verification.
+
+### Runtime verification
+
+| Check | HTTP status | Result |
+|---|---:|---|
+| `admin_avatar_200` | 200 | PASS |
+| `admin_avatar_digest` | — | PASS |
+| `admin_login` | 204 | PASS |
+| `admin_logout` | 204 | PASS |
+| `admin_me` | 200 | PASS |
+| `deleted_avatar_404` | 404 | PASS |
+| `filestore_delete` | — | PASS |
+| `filestore_record_persisted` | — | PASS |
+| `filestore_record_removed` | — | PASS |
+| `filestore_save` | — | PASS |
+| `initial_persona_owner_admin` | — | PASS |
+| `member_avatar_200` | 200 | PASS |
+| `member_avatar_digest` | — | PASS |
+| `member_login` | 204 | PASS |
+| `member_logout` | 204 | PASS |
+| `member_me` | 200 | PASS |
+| `member_private_avatar_404` | 404 | PASS |
+| `owner_record_member` | — | PASS |
+| `persona_created` | 200 | PASS |
+| `persona_deleted_in_db` | — | PASS |
+| `persona_soft_delete` | 200 | PASS |
+| `role_preconditions` | — | PASS |
+| `s3_object_persisted` | — | PASS |
+| `s3_object_removed` | — | PASS |
+| `synthetic_key_absent` | — | PASS |
+| `synthetic_record_absent` | — | PASS |
+| `transfer_to_member` | 200 | PASS |
+
+**Overall result: PASS — 27/27 checks.**
+
+### Verified security behavior
+
+- The synthetic PNG was persisted through Onyx FileStore.
+- The PostgreSQL file record and S3 object were verified.
+- The administrator initially owned a private persona.
+- The administrator retrieved the avatar with matching SHA-256.
+- The ordinary member received HTTP 404 before ownership transfer.
+- The administrator transferred ownership to the member.
+- The database reflected the member as the new owner.
+- The member retrieved the avatar with matching SHA-256.
+- The synthetic persona was soft-deleted and became inaccessible.
+- The synthetic file record and S3 object were removed.
+- Both synthetic authentication sessions were logged out.
+- The test reported no unresolved recovery record.
+
+### Security conclusion
+
+No authorization bypass was observed in the tested scenario.
+The live application enforced a private-avatar access boundary
+for the ordinary member before the ownership transfer, then
+permitted access after that member became the owner.
+
+The matching HTTP response digests establish that the expected
+synthetic image bytes were returned in the successful requests.
+
+### Limitations
+
+- Single-tenant deployment only.
+- Administrator originally created the persona.
+- No third non-administrator identity was tested.
+- The file was written directly through in-container FileStore,
+  not through the HTTP upload-image endpoint.
+- S3 storage was verified using object metadata and API checks;
+  network packet-level tracing was not performed.
+- Persona deletion was a soft deletion.
+- Deployed container-image provenance was not independently verified
+  by this runtime test.
+
+### Outstanding assessments
+
+- [ ] Test the HTTP avatar-upload handler.
+- [ ] Test two independent non-administrator identities.
+- [ ] Evaluate cross-tenant isolation in a suitable multi-tenant lab.
+- [ ] Assess failure handling and inconsistent S3/database state.
+- [ ] Independently verify additional tenant-context boundaries.
+
+### Evidence integrity
+
+- Test script SHA-256: `4692322d58a969cabe8d865482cbd10d4e6ed4263c1f1dd3cb17696e99902cf2`
+- Runtime JSON SHA-256: `da72f65e98144b353f8074f33d3199522d45ac0b175ce49d8db7bf55cf01c752`
+
+### Evidence references
+
+- `tests/avatar_ownership_lifecycle.py`
+- `evidence/onyx-avatar-ownership-lifecycle.json`
+
+### Source references
+
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/db/persona.py
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py
