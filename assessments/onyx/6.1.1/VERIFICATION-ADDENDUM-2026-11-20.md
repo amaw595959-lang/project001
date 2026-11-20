@@ -45,3 +45,37 @@ Sources: [permissions.py](https://github.com/onyx-dot-app/onyx/blob/0135795fdf8f
 **Final labels:** SOURCE_REVIEW_DEFENDED_BY_ASSISTANT; ISOLATED_FUNCTION_TESTS_PASSED; LIVE_RUNTIME_NOT_TESTED; USER_INDEPENDENT_DEFENSE_NOT_DEMONSTRATED.
 
 Do not use this addendum as a penetration-test report or production assurance statement.
+
+## Subsequent runtime verification — 2026-11-20
+
+The preceding final labels are historical and describe the original
+source-function verification, not the subsequent deployed application tests.
+
+### New runtime evidence
+- Target: Onyx v5.1.3
+- Runtime source checkout: 3835aa4294198de48d318536081ea09fbde7aea6
+- Docker API health: healthy
+- Unauthenticated and ordinary-user directory access: denied
+- Administrator directory access: allowed
+- Unauthorized administrator self-promotion: denied
+- Administrator privilege grant and revocation: verified
+- Privilege revocation using the unchanged original token: verified
+- Final administrator permissions and group memberships: verified in PostgreSQL
+
+### Updated scope status
+- Live API authorization verification: PASS for tested scenarios
+- Independent database verification: PASS
+- Enterprise scoped-manager behavior: NOT RUNTIME VERIFIED
+- Cross-tenant authorization: NOT TESTED
+- Independent human competency defense: NOT DEMONSTRATED
+- No authorization bypass observed in the tested scenarios
+
+### Evidence references
+- ONYX-611-Runtime-Authorization-Evidence.md
+- ONYX-611-Runtime-Provenance.md
+
+### Limitations
+The runtime tests use Onyx v5.1.3, whereas the earlier source
+assessment uses another commit. The results are not interchangeable.
+The current runtime evidence summary is manually transcribed;
+a machine-generated regression evidence package is still pending.
