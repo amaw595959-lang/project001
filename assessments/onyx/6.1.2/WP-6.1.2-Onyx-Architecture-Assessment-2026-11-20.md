@@ -370,3 +370,73 @@ status must not be interpreted as proof that an object remained stored.
 - `tests/s3_object_lifecycle.py`
 - `evidence/onyx-s3-object-lifecycle.json`
 - `evidence/onyx-s3-object-lifecycle-preflight-failed.json`
+
+## 16. Onyx File-Store Source and Trust-Boundary Trace
+
+**Source commit:** `3835aa4294198de48d318536081ea09fbde7aea6`
+
+**Assessment method:** Read-only Python AST analysis of the Onyx v5.1.3 source checkout.
+
+### Verified source relationships
+
+| Function | Source lines | Call relationships |
+|---|---|---|
+| `_build_default_file_store` | `backend/onyx/file_store/file_store.py:904-945` | `FileStoreType`, `PostgresBackedFileStore`, `get_azure_file_store`, `get_gcs_file_store`, `get_s3_file_store` |
+| `get_s3_file_store` | `backend/onyx/file_store/file_store.py:811-834` | `RuntimeError`, `S3BackedFileStore` |
+| `S3BackedFileStore._get_s3_key` | `backend/onyx/file_store/file_store.py:523-538` | `generate_s3_key`, `get_current_tenant_id`, `info`, `len` |
+| `S3BackedFileStore.save_file` | `backend/onyx/file_store/file_store.py:561-626` | `_get_bucket_name`, `_get_s3_client`, `_get_s3_key`, `_put_legacy_object`, `commit`, `content_byte_size`, `encode`, `get_session_with_current_tenant_if_none`, `hasattr`, `hexdigest`, `isinstance`, `put_object`, `read`, `seek`, `sha256`, `str`, `update`, `upsert_filerecord`, `uuid4` |
+| `S3BackedFileStore.read_file` | `backend/onyx/file_store/file_store.py:628-664` | `BytesIO`, `NamedTemporaryFile`, `_with_legacy_fallback`, `error`, `get_filerecord_by_file_id`, `get_object`, `get_session_with_current_tenant_if_none`, `iter_chunks`, `read`, `seek`, `write` |
+| `S3BackedFileStore.delete_file` | `backend/onyx/file_store/file_store.py:704-758` | `RuntimeError`, `_delete_legacy_object`, `_get_s3_client`, `commit`, `delete_filerecord_by_file_id`, `delete_object`, `error`, `get_filerecord_by_file_id_for_update`, `get_session_with_current_tenant_if_none`, `is_missing_object`, `rollback`, `warning` |
+| `generate_s3_key` | `backend/onyx/file_store/s3_key_utils.py:119-166` | `encode`, `hexdigest`, `join`, `len`, `max`, `sanitize_s3_key_name`, `sha256`, `strip` |
+| `get_filerecord_by_file_id` | `backend/onyx/db/file_record.py:52-63` | `FileRecordNotFoundError`, `filter_by`, `first`, `query` |
+| `get_current_tenant_id` | `backend/shared_configs/contextvars.py:72-86` | `RuntimeError`, `format_stack`, `get`, `join` |
+
+### Security interpretation
+
+- The configured file-store factory selects an S3-backed implementation.
+- S3 object-key construction uses the current tenant context.
+- File saving includes S3 object creation and PostgreSQL file metadata.
+- File reads resolve the stored object location through a database record.
+- File deletion includes database-record and S3-object operations.
+
+Tenant-prefixed object keys are a namespace mechanism, not proof
+of user-level ownership authorization.
+
+The file-store methods do not independently establish that
+an external requester is authorized to access a particular file.
+Authorization must also be examined at the calling application layer.
+
+### Example application handler for further assessment
+
+`backend/onyx/server/features/persona/api.py` contains
+`get_persona_avatar`, which depends on `BASIC_ACCESS`,
+retrieves a persona using the requesting user context,
+checks the file record and origin, and calls `read_file`.
+
+These relationships were independently reviewed in source;
+the handler has not yet been tested as an end-to-end storage flow.
+
+### Outstanding work
+
+- Trace authorization and persona visibility into the avatar handler.
+- Test permitted and denied requests using synthetic users and assets.
+- Verify whether the Onyx handler actually retrieves the S3 object.
+- Assess tenant-context propagation and object-key isolation.
+- Assess file ownership checks independently of storage credentials.
+- Investigate failure consistency between S3 and database metadata.
+
+### Evidence integrity
+
+- Script SHA-256: `6d488732cde38b86ea06367651c0443c12afbaadcfcec9a2f8cc5b76faa56dcb`
+- JSON SHA-256: `f9417011d8cb6fd6df4dcd2661ae2fb556b2df29f95f41741e349480534005b9`
+
+### Evidence references
+
+- `tests/filestore_source_trace.py`
+- `evidence/onyx-filestore-source-trace.json`
+
+### Source references
+
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/s3_key_utils.py
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py

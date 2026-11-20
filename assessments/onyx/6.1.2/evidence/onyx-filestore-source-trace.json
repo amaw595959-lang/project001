@@ -1,0 +1,162 @@
+{
+  "assessment": "WP-6.1.2",
+  "timestamp_utc": "2026-11-20T21:04:51.984099+00:00",
+  "source_commit": "3835aa4294198de48d318536081ea09fbde7aea6",
+  "tracked_source_clean": true,
+  "method": "Static Python AST analysis",
+  "source_file_sha256": {
+    "backend/onyx/file_store/file_store.py": "3703ad9336e12475190f04fb2c96775e672b6919cb5a925b5ee1230bfd61b6aa",
+    "backend/onyx/file_store/s3_key_utils.py": "979227ab6590af72d5d2bdfd78f215c4fce0c68d5a9df5a9ce6dbb7895d2deb8",
+    "backend/onyx/db/file_record.py": "84658f424137cb5e0a01b01e8c5bdf1baa9f0c2b09569bf160b5ab310907bb7a",
+    "backend/shared_configs/contextvars.py": "6adb090c2d709e263aaf6d2b227a774a3fe90d3b94d5d92a186fdd27152a07f7"
+  },
+  "functions": {
+    "_build_default_file_store": {
+      "file": "backend/onyx/file_store/file_store.py",
+      "start_line": 904,
+      "end_line": 945,
+      "calls": [
+        "FileStoreType",
+        "PostgresBackedFileStore",
+        "get_azure_file_store",
+        "get_gcs_file_store",
+        "get_s3_file_store"
+      ]
+    },
+    "get_s3_file_store": {
+      "file": "backend/onyx/file_store/file_store.py",
+      "start_line": 811,
+      "end_line": 834,
+      "calls": [
+        "RuntimeError",
+        "S3BackedFileStore"
+      ]
+    },
+    "S3BackedFileStore._get_s3_key": {
+      "file": "backend/onyx/file_store/file_store.py",
+      "start_line": 523,
+      "end_line": 538,
+      "calls": [
+        "generate_s3_key",
+        "get_current_tenant_id",
+        "info",
+        "len"
+      ]
+    },
+    "S3BackedFileStore.save_file": {
+      "file": "backend/onyx/file_store/file_store.py",
+      "start_line": 561,
+      "end_line": 626,
+      "calls": [
+        "_get_bucket_name",
+        "_get_s3_client",
+        "_get_s3_key",
+        "_put_legacy_object",
+        "commit",
+        "content_byte_size",
+        "encode",
+        "get_session_with_current_tenant_if_none",
+        "hasattr",
+        "hexdigest",
+        "isinstance",
+        "put_object",
+        "read",
+        "seek",
+        "sha256",
+        "str",
+        "update",
+        "upsert_filerecord",
+        "uuid4"
+      ]
+    },
+    "S3BackedFileStore.read_file": {
+      "file": "backend/onyx/file_store/file_store.py",
+      "start_line": 628,
+      "end_line": 664,
+      "calls": [
+        "BytesIO",
+        "NamedTemporaryFile",
+        "_with_legacy_fallback",
+        "error",
+        "get_filerecord_by_file_id",
+        "get_object",
+        "get_session_with_current_tenant_if_none",
+        "iter_chunks",
+        "read",
+        "seek",
+        "write"
+      ]
+    },
+    "S3BackedFileStore.delete_file": {
+      "file": "backend/onyx/file_store/file_store.py",
+      "start_line": 704,
+      "end_line": 758,
+      "calls": [
+        "RuntimeError",
+        "_delete_legacy_object",
+        "_get_s3_client",
+        "commit",
+        "delete_filerecord_by_file_id",
+        "delete_object",
+        "error",
+        "get_filerecord_by_file_id_for_update",
+        "get_session_with_current_tenant_if_none",
+        "is_missing_object",
+        "rollback",
+        "warning"
+      ]
+    },
+    "generate_s3_key": {
+      "file": "backend/onyx/file_store/s3_key_utils.py",
+      "start_line": 119,
+      "end_line": 166,
+      "calls": [
+        "encode",
+        "hexdigest",
+        "join",
+        "len",
+        "max",
+        "sanitize_s3_key_name",
+        "sha256",
+        "strip"
+      ]
+    },
+    "get_filerecord_by_file_id": {
+      "file": "backend/onyx/db/file_record.py",
+      "start_line": 52,
+      "end_line": 63,
+      "calls": [
+        "FileRecordNotFoundError",
+        "filter_by",
+        "first",
+        "query"
+      ]
+    },
+    "get_current_tenant_id": {
+      "file": "backend/shared_configs/contextvars.py",
+      "start_line": 72,
+      "end_line": 86,
+      "calls": [
+        "RuntimeError",
+        "format_stack",
+        "get",
+        "join"
+      ]
+    }
+  },
+  "checks": {
+    "_build_default_file_store": true,
+    "S3BackedFileStore._get_s3_key": true,
+    "S3BackedFileStore.save_file": true,
+    "S3BackedFileStore.read_file": true,
+    "S3BackedFileStore.delete_file": true
+  },
+  "overall": "PASS",
+  "limitations": [
+    "Static source analysis, not a runtime call trace",
+    "Function calls alone do not establish authorization",
+    "No user-level authorization path independently verified",
+    "No cross-tenant access attempt performed",
+    "Source checkout does not prove deployed image provenance"
+  ]
+}
