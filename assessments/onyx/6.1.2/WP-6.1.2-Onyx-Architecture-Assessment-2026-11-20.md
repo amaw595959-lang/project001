@@ -130,7 +130,7 @@ rather than treating product-name differences as vulnerabilities.
 ## 9. Outstanding verification tasks
 
 - [ ] Trace a real authenticated API request through application code.
-- [ ] Confirm actual Redis operations and associated credentials.
+- [ ] Verify broader Redis operations and credential/ACL security (synthetic session lifecycle verified in Section 12).
 - [ ] Confirm actual OpenSearch queries and access controls.
 - [ ] Confirm authorized and unauthorized S3 object operations.
 - [ ] Review service credentials and least privilege.
@@ -162,3 +162,45 @@ No architectural vulnerability is claimed from this inventory alone.
 - P-006: https://github.com/amaw595959-lang/project001/blob/2388de2/p-006/docs/architecture.md
 - 6.1.1 runtime evidence: ../6.1.1/ONYX-611-Runtime-Authorization-Evidence.md
 - 6.1.1 database regression: ../6.1.1/evidence/ONYX-611-Authz-DB-Regression.json
+
+## 12. Subsequent Redis Session Data-Flow Verification
+
+**Date:** 2026-11-20
+
+**Flow:** Onyx API -> Redis authentication-session storage.
+
+**Execution:** Live API and Redis tests within the isolated
+Onyx v5.1.3 Docker laboratory.
+
+### Verified observations
+
+- Redis connection succeeded.
+- Synthetic member login returned HTTP 204.
+- A corresponding Redis session key existed.
+- The session key had a positive TTL.
+- The original authentication token accessed `/me` successfully.
+- Logout returned HTTP 204.
+- Reusing the original token after logout returned HTTP 403.
+
+**Result:** PASS — 7 of 7 checks.
+
+### Security interpretation
+
+The observed application behavior corroborates Redis-backed
+session storage and logout invalidation for the tested account.
+
+This does not establish production session security, complete
+session revocation coverage, or Redis access-control strength.
+
+The test did not independently inspect the post-logout Redis
+tombstone value.
+
+### Evidence integrity
+
+- Test script SHA-256: `ca21859f8a23326f4abb534f84d84ccc48849ee9bef207b768852741ede4c9ba`
+- JSON evidence SHA-256: `6322861da656b515e895ff557d3858618fe1dea6e6e58421816d8482d16bd026`
+
+### Evidence references
+
+- `tests/redis_session_flow.py`
+- `evidence/onyx-redis-session-flow.json`

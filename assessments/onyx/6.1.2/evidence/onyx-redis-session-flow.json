@@ -1,0 +1,57 @@
+{
+  "assessment": "WP-6.1.2",
+  "timestamp_utc": "2026-11-20T20:46:52.670240+00:00",
+  "flow": "Onyx API -> Redis session lifecycle",
+  "authentication_backend": "redis",
+  "tests": [
+    {
+      "name": "redis_ping",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "login_status",
+      "actual": 204,
+      "expected": 204,
+      "pass": true
+    },
+    {
+      "name": "redis_session_record_exists",
+      "actual": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "name": "redis_session_ttl_positive",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "same_token_authenticated_me",
+      "actual": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "name": "logout_status",
+      "actual": 204,
+      "expected": 204,
+      "pass": true
+    },
+    {
+      "name": "original_token_denied_after_logout",
+      "actual": 403,
+      "expected": 403,
+      "pass": true
+    }
+  ],
+  "overall": "PASS",
+  "limitations": [
+    "Synthetic session only",
+    "No Redis values, session tokens, or passwords recorded",
+    "PostgreSQL interactions not traced by this test",
+    "No production session configuration assessed"
+  ]
+}
