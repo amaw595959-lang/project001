@@ -939,3 +939,138 @@ not a percentage of total Onyx or enterprise AI security coverage.
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/db/persona.py
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/manage/users.py
+
+## 23. S3 Workload Identity — Administrative Credential Reuse
+
+**Finding ID:** ONYX-S3-001
+
+**Finding title:** Application workload reuses administrative
+object-storage credentials.
+
+**Status:** Confirmed in the isolated assessment laboratory; remediation open.
+
+**Severity:** Provisionally High, pending engagement-specific
+likelihood and business-impact assessment. No CVSS score assigned.
+
+**Target:** Onyx v5.1.3 with SeaweedFS 4.47.
+
+**Execution:** 2026-11-20T22:30:27.537669+00:00 to 2026-11-20T22:30:29.226980+00:00.
+
+### Verified evidence
+
+| Verification | Observed result |
+|---|---|
+| Expected SeaweedFS image reference | MATCH |
+| API/object-store credential pairs | IDENTICAL |
+| Shared Docker network | YES |
+| Object-store host ports published | NO |
+| S3 transport scheme | HTTP |
+| TLS certificate verification configured | NO |
+| Configured bucket HEAD | HTTP 200 |
+| Global bucket enumeration | HTTP 200 |
+| IAM user enumeration | HTTP 200 |
+
+All three storage/identity API probes were read-only.
+
+### Affected trust boundary
+
+The Onyx API workload and object-storage administrator use the
+same access-key and secret-key pair.
+
+SeaweedFS 4.47 source code loads the configured environment
+credentials into a static administrative identity with the
+Admin action.
+
+The tested application credentials successfully enumerated
+storage buckets and IAM users, demonstrating permissions
+beyond ordinary application file reads and writes.
+
+### Security impact
+
+Compromise of the Onyx API workload could expose credentials
+associated with the storage administrator identity.
+
+The observed permissions increase potential impact beyond
+the application's intended file-access operations.
+
+Administrative write capabilities, cross-bucket data access,
+cross-tenant exposure, and exploitation were not independently
+tested in this assessment.
+
+### Root cause
+
+Administrative storage credentials are shared with the
+application workload rather than using an independently
+restricted workload-specific identity.
+
+### Remediation recommendations
+
+1. Provision a dedicated S3 identity for the Onyx FileStore.
+2. Restrict access to required bucket and object operations.
+3. Assess whether object-key-prefix restrictions are supported
+   and enforceable by the storage authorization policy.
+4. Separate bucket provisioning and administrative IAM duties
+   from routine application operations where feasible.
+5. Validate application startup, upload, download, and cleanup
+   using the restricted identity before deploying it.
+6. Rotate the shared administrative credentials through a
+   controlled migration after compatibility is confirmed.
+7. Review internal storage transport and network isolation
+   under a separate threat-model finding.
+
+### Validation and retesting criteria
+
+- Onyx FileStore remains functional with the dedicated identity.
+- Required file operations succeed.
+- Unnecessary global bucket enumeration is denied.
+- Administrative IAM enumeration is denied.
+- Unrelated bucket or namespace access is denied.
+- Administrator credentials are absent from the API workload.
+- Credential rotation and regression checks are documented.
+
+### Assessment limitations
+
+- Only read-only S3 and IAM API operations were performed.
+- No administrative identity was modified or deleted.
+- No unauthorized object access or data exfiltration was attempted.
+- The container image reference is not a provenance attestation.
+- Administrative identity semantics are based on reviewed
+  SeaweedFS 4.47 source code and corresponding runtime behavior.
+- No production environment or multi-tenant deployment was tested.
+- Network-level plaintext interception was not demonstrated.
+- Severity depends on deployment architecture and asset sensitivity.
+
+### Earlier outstanding-task reconciliation
+
+Completed in later sections:
+
+- Actual Onyx FileStore save/read/delete: Sections 20–21.
+- HTTP avatar authorization and storage integrity: Section 20.
+- Private persona sharing and revocation: Sections 19 and 22.
+- Two ordinary non-administrator identities: Section 22.
+- HTTP avatar upload validation: Section 21.
+- S3 administrative credential reuse: Section 23.
+
+Still open:
+
+- Restricted-credential implementation and negative testing.
+- Failure handling for inconsistent S3/database state.
+- Cross-tenant authorization and tenant-context isolation.
+- Deployment-specific network and plaintext transport assessment.
+- Additional application endpoints and workload identities.
+
+Historical outstanding lists remain unchanged; this is the
+current reconciliation, not a retroactive rewrite.
+
+### Evidence integrity
+
+- Test script: `tests/onyx_s3_workload_privilege_probe.py`
+- Test script SHA-256: `1dec8ed854702333be52e63115265cad80dc0d6dfbd2b1728ecebd982bb6324c`
+- Runtime evidence: `evidence/onyx-s3-workload-privilege.json`
+- Runtime evidence SHA-256: `2c1c22407870c93d9c1c42184bba433e92613330943dc147963fbc5d1046b487`
+
+### Source references
+
+- https://github.com/seaweedfs/seaweedfs/blob/4.47/weed/s3api/auth_credentials.go
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/deployment/docker_compose/docker-compose.yml
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py

@@ -1,0 +1,39 @@
+{
+  "assessment": "WP-6.1.2-Section-23",
+  "both_credential_pairs_present": true,
+  "credentials_identical": true,
+  "finding": "CONFIRMED",
+  "finished_utc": "2026-11-20T22:30:29.226980+00:00",
+  "image_reference": "docker.io/chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882",
+  "image_reference_matches_v4_47_digest": true,
+  "limitations": [
+    "Only read-only S3/IAM operations were tested",
+    "No IAM modifications or unauthorized object accesses were attempted",
+    "Container image reference is not a supply-chain attestation",
+    "Administrative identity semantics are supported by SeaweedFS 4.47 source review",
+    "Severity requires deployment-specific impact evaluation"
+  ],
+  "object_store_host_ports_published": false,
+  "operations": {
+    "configured_bucket_head": {
+      "allowed": true,
+      "error_type": null,
+      "status": 200
+    },
+    "iam_list_users": {
+      "allowed": true,
+      "error_type": null,
+      "status": 200
+    },
+    "list_all_buckets": {
+      "allowed": true,
+      "error_type": null,
+      "status": 200
+    }
+  },
+  "read_only": true,
+  "s3_endpoint_scheme": "http",
+  "shared_docker_network": true,
+  "started_utc": "2026-11-20T22:30:27.537669+00:00",
+  "tls_verify_configured": false
+}
