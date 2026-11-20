@@ -1138,3 +1138,77 @@ Bucket listing verified absence of visible objects before teardown, not forensic
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py
 - https://github.com/seaweedfs/seaweedfs/blob/4.47/weed/command/s3.go
 - https://github.com/seaweedfs/seaweedfs/blob/4.47/weed/s3api/auth_credentials.go
+## 25. Final scoped assessment disposition and tracked follow-ups
+
+**Disposition: WP-6.1.2 SCOPED ASSESSMENT DOCUMENTED — OPEN FINDING AND DEFERRED COVERAGE.**
+
+This is a **consultancy-style evidence-backed closeout of the work performed** in this
+isolated Onyx v5.1.3 / SeaweedFS 4.47 Codespaces lab, not a statement that
+every intended Onyx data flow or trust boundary passed a security assessment.
+Historical checklists and observations in Sections 1–24 remain as originally
+recorded; this final section is the current reconciliation.
+
+### Demonstrated within the stated scope
+
+- Documented a component/dependency inventory and identified running versus
+  non-running services (Sections 2–5).
+- Exercised Redis-backed session login/logout and invalidation; direct
+  OpenSearch metadata connectivity; and direct S3 authentication/object
+  lifecycle operations (Sections 12–15).
+- Traced Onyx FileStore and persona-avatar source paths and performed selected
+  authenticated HTTP, PostgreSQL-backed file, persona authorization,
+  ownership/sharing/revocation and upload/cleanup checks (Sections 16–22).
+- Confirmed **ONYX-S3-001**: shared storage administrator credentials used by
+  the application workload, with unnecessary IAM and bucket enumeration
+  privileges in the original lab (Section 23).
+- Demonstrated **feasibility**, not deployment, of a bucket-scoped replacement
+  identity in a separate, deleted sandbox: **7/7** restricted object lifecycle
+  checks, **17/17** actual FileStore backend checks with an **in-memory metadata
+  adapter**, negative authorization checks, independent cleanup and safe
+  teardown evidence (Section 24).
+
+These observations apply to the exact tested configurations, fixtures,
+endpoints, permission checks and execution windows; they are not an
+application-wide or production security certification.
+
+### Open confirmed finding
+
+- **ONYX-S3-001 — OPEN.** The original Onyx API was **not migrated** to
+  restricted credentials; no live PostgreSQL/HTTP regression against a
+  migrated original workload or administrative key rotation has occurred.
+  Remediation requires a separately authorized reversible change, verification,
+  retest and independent evidence before closure.
+- Tracking issue: [#3 — ONYX-S3-001 remediation](../../../../issues/3).
+
+### Explicitly deferred / not independently verified
+
+| ID | Unverified or partial scope | Tracking |
+|---|---|---|
+| FOLLOWUP-612-01 | S3/PostgreSQL partial-failure consistency, compensation and rollback | [#4](../../../../issues/4) |
+| FOLLOWUP-612-02 | Multi-tenant context, object isolation, connector and cache boundaries | [#5](../../../../issues/5) |
+| FOLLOWUP-612-03 | Network/transport controls, service identities, Redis/OpenSearch broad access controls, and frontend/background/MCP/inference data flows not running in the assessed lab | [#6](../../../../issues/6) |
+
+Other historical outstanding tasks may remain beyond these grouped tracking
+issues. These are **not tested**, not automatically findings. In particular,
+single-tenant persona authorization is not proof of cross-tenant isolation,
+and the isolated FileStore in-memory adapter is not proof of complete
+application/database compatibility after credential migration.
+
+### Closeout conditions and next engagement gates
+
+1. Retain the existing sanitized scripts and SHA-256-linked evidence in
+   Sections 10–24; record deviations when test configuration changes.
+2. Independently defend the architecture/trust-boundary model and reproduce
+   selected controls without relying solely on generated explanations.
+3. Keep the original lab and its secrets unchanged until a separately
+   authorized change plan, backups, rollback conditions, and regression test
+   procedures have been approved.
+4. Close **ONYX-S3-001** only after remediation is deployed in the
+   specifically assessed environment and independently retested.
+5. Address deferred test areas in their own scoped workpapers, or explicitly
+   accept them as limitations for a time-bounded engagement; do not imply
+   they were completed by the current workpaper.
+
+**Final outcome for this workpaper:** evidence collection and reporting of
+the **scoped WP-6.1.2 lab assessment are complete through Section 24**;
+the **security remediation program and wider coverage are not complete**.
