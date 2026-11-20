@@ -850,3 +850,92 @@ and verified cleanup of the known synthetic object.
 
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py
+
+## 22. Non-Administrator Persona Authorization and Synthetic Account Cleanup
+
+**Target:** Onyx v5.1.3, isolated single-tenant Docker laboratory.
+
+**Assessment method:** Live HTTP authorization testing with three
+synthetic identities, database-backed ownership verification,
+recovery journaling, and account lifecycle cleanup.
+
+### Assessment execution
+
+- Authorization testing: 2026-11-20T22:12:45.448223+00:00 to 2026-11-20T22:12:48.830426+00:00.
+- Account cleanup: 2026-11-20T22:16:59.295636+00:00 to 2026-11-20T22:17:00.571192+00:00.
+- Authorization result: **PASS — 43/43 checks**.
+- Synthetic account cleanup: **PASS — 26/26 checks**.
+- Combined completed checks: **69/69**.
+
+### Observed authorization results
+
+| Operation | Observed HTTP status | Result |
+|---|---:|---|
+| Admin creates private persona | 200 | PASS |
+| Member A initially denied | 404 | PASS |
+| Member B initially denied | 404 | PASS |
+| Admin transfers ownership to A | 200 | PASS |
+| A reads owned persona | 200 | PASS |
+| B denied private access | 404 | PASS |
+| B denied unauthorized sharing | 403 | PASS |
+| A shares persona with B | 200 | PASS |
+| B reads shared persona | 200 | PASS |
+| B denied viewer-level resharing | 403 | PASS |
+| B denied ownership transfer as viewer | 403 | PASS |
+| A revokes B | 200 | PASS |
+| B denied after revocation | 404 | PASS |
+| B denied ownership transfer after revocation | 403 | PASS |
+| A transfers ownership back to admin | 200 | PASS |
+| Admin soft-deletes persona | 200 | PASS |
+| B denied after deletion | 404 | PASS |
+
+### Database and account lifecycle verification
+
+- Synthetic persona initially belonged to admin.
+- Ownership transferred to A and was verified in PostgreSQL.
+- B could not change private visibility or unauthorized sharing.
+- Viewer access did not permit B to reshare or transfer ownership.
+- Revocation restored denial of B's persona access.
+- Ownership was restored to admin before persona deletion.
+- Persona soft-deletion was confirmed by a database tombstone.
+- Both A and B received HTTP 404 for the deleted persona.
+- B had no owned personas or persona-share rows before account deletion.
+- B was deactivated through the admin API (HTTP 200).
+- B was deleted through the admin API (HTTP 200).
+- B's database absence was verified.
+- Both test executions reported no unresolved recovery journal.
+- B's private credential file was removed after cleanup verification.
+- Existing admin and member A identities were retained.
+
+### Finding and interpretation
+
+**No object-level authorization bypass was observed in the tested
+non-administrator persona scenarios.** Private access, sharing,
+revocation, and ownership changes behaved as expected in this lab.
+
+The recorded 69/69 is a count of successful test assertions,
+not a percentage of total Onyx or enterprise AI security coverage.
+
+### Limitations
+
+- One Onyx version and one isolated single-tenant configuration.
+- Basic authentication and three synthetic accounts.
+- Only private persona object-level authorization was assessed.
+- No cross-tenant, group-based, or concurrent race-condition testing.
+- No privileged-user impersonation or token theft was simulated.
+- Deleting a persona was a soft delete, not physical record erasure.
+- Account absence does not guarantee deletion of all possible external artifacts.
+- No conclusions about production deployments or unrelated endpoints.
+
+### Evidence and SHA-256 integrity
+
+- Boundary test: `tests/onyx_nonadmin_persona_boundary_assessment.py` — SHA-256 `fd00786fb0dc72fb0d4f9a9f68fea9dc8cea8044824d0fcfbc94a6a3f819126a`
+- Cleanup test: `tests/onyx_section22_member_b_cleanup.py` — SHA-256 `f947f7049c9ab1d4f1c342be81bb8110ed19dff662673ed2c2b827a05edbed10`
+- Boundary evidence: `evidence/onyx-nonadmin-persona-boundary.json` — SHA-256 `43fdb6b956d7ca3e020baa216eab764fae48a9483b434c6d83c8a4766d4d7445`
+- Cleanup evidence: `evidence/onyx-section22-member-b-cleanup.json` — SHA-256 `70cdd4f8061344bdab6e08853d5550626a5b879222e9494ca569a8f85f9a17f2`
+
+### Implementation references
+
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/db/persona.py
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/manage/users.py
