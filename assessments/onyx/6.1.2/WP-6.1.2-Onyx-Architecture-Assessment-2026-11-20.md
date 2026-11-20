@@ -750,3 +750,103 @@ synthetic image bytes were returned in the successful requests.
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/db/persona.py
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py
+
+## 21. Live HTTP Avatar Upload, MIME Validation and S3 Cleanup
+
+**Successful execution timestamp:** 2026-11-20T21:54:18.990232+00:00
+
+**Target:** Onyx v5.1.3 isolated single-tenant Docker laboratory.
+
+**Method:** Authenticated multipart HTTP upload, MIME-content
+validation, PostgreSQL file-record inspection, S3 object verification,
+SHA-256 comparison, and synthetic resource cleanup.
+
+### Corrected runtime results
+
+| Check | HTTP status | Result |
+|---|---:|---|
+| `filerecord_persisted` | — | PASS |
+| `filerecord_removed` | — | PASS |
+| `filestore_delete` | — | PASS |
+| `filestore_read_digest` | — | PASS |
+| `invalid_file_record_absent` | — | PASS |
+| `invalid_image_rejected` | 400 | PASS |
+| `member_authenticated` | 200 | PASS |
+| `member_login` | 204 | PASS |
+| `member_logout` | 204 | PASS |
+| `member_role_verified` | 200 | PASS |
+| `returned_file_id_valid` | — | PASS |
+| `s3_object_persisted` | — | PASS |
+| `s3_object_removed` | — | PASS |
+| `s3_payload_digest` | — | PASS |
+| `server_detected_png` | — | PASS |
+| `synthetic_names_unused` | — | PASS |
+| `valid_image_uploaded` | 200 | PASS |
+
+**Overall result: PASS — 17/17 checks.**
+
+### Verified behavior
+
+- The ordinary synthetic member authenticated successfully.
+- Invalid image content declared as image/png was rejected with HTTP 400.
+- A valid synthetic PNG declared as text/plain was accepted with HTTP 200.
+- The server recorded the image type as image/png.
+- The PostgreSQL file record and S3 object were verified.
+- S3 and FileStore content SHA-256 values matched the synthetic PNG.
+- The synthetic file record and S3 object were removed.
+- The synthetic member logged out successfully.
+- No unresolved recovery record was reported.
+
+### Initial test failure and correction
+
+The original execution reported REVIEW_REQUIRED because the assessment
+script defined a function named http, shadowing the imported http module.
+The resulting AttributeError occurred before member login and before
+the upload requests were executed.
+
+The original failure evidence was retained unchanged.
+The test script was corrected to import CookieJar directly and use
+CookieJar() without the shadowed module reference.
+A separate corrected execution then passed all 17 checks.
+
+The original failure was a test-harness defect, not evidence of an
+Onyx authorization or file-upload vulnerability.
+
+### Security interpretation
+
+No upload-handler bypass was observed in the tested scenarios.
+The results demonstrate content-based PNG identification, rejection
+of the tested invalid image bytes, successful FileStore persistence,
+and verified cleanup of the known synthetic object.
+
+### Assessment limitations
+
+- Single-tenant isolated environment only.
+- The successful upload was executed by a synthetic ordinary member.
+- Only one valid PNG and one invalid payload were assessed.
+- Oversized files, malformed image families, polyglots, decompression
+  bombs, and denial-of-wallet scenarios were not assessed.
+- Cross-user avatar retrieval is documented separately in Section 20.
+- Cross-tenant file isolation remains untested.
+- A lost HTTP response before the returned file ID is known can
+  require manual investigation of potentially orphaned objects.
+- This test does not establish production deployment security.
+
+### Evidence integrity
+
+- Original test-script SHA-256:
+  `c844361e2a932212633eb94e90f238586a1e26451af44d9cd00d66e2c78b845f`
+- Corrected test-script SHA-256: `03bf2b800580d7a7254c94291d31be1c2610c2dbc6011f835ce8a8509312fd44`
+- Original failed JSON SHA-256: `2e230e0d7dfbed087b45994c09c8c606df2927bfff25de11178a5e765bc4e48d`
+- Successful runtime JSON SHA-256: `fcd5bad342336df68a550907e13512e5434b2a54db0c15af36a6adbee174917a`
+
+### Evidence references
+
+- `tests/onyx_http_avatar_upload_assessment.py`
+- `evidence/onyx-http-avatar-upload-initial-failure.json`
+- `evidence/onyx-http-avatar-upload-assessment.json`
+
+### Source references
+
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py
+- https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/file_store/file_store.py
