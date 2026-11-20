@@ -1,0 +1,213 @@
+{
+  "schema": "onyx-611-authz-regression/v2",
+  "timestamp_utc": "2026-11-20T19:31:43.631429+00:00",
+  "target": "Onyx v5.1.3 / local API container",
+  "authentication": "Basic; original member token replayed",
+  "database_verification": "read-only PostgreSQL queries",
+  "tests": [
+    {
+      "test": "health",
+      "actual": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "test": "readiness",
+      "actual": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "test": "unauthenticated_directory",
+      "actual": 403,
+      "expected": 403,
+      "pass": true
+    },
+    {
+      "test": "unauthenticated_me",
+      "actual": 403,
+      "expected": 403,
+      "pass": true
+    },
+    {
+      "test": "admin_login",
+      "actual": 204,
+      "expected": 204,
+      "pass": true
+    },
+    {
+      "test": "member_login",
+      "actual": 204,
+      "expected": 204,
+      "pass": true
+    },
+    {
+      "test": "admin_directory",
+      "actual": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "test": "member_me",
+      "actual": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "test": "member_directory_denied",
+      "actual": 403,
+      "expected": 403,
+      "pass": true
+    },
+    {
+      "test": "member_initial_role",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "test": "db_admin_baseline",
+      "actual": [
+        true,
+        true
+      ],
+      "expected": [
+        true,
+        true
+      ],
+      "pass": true
+    },
+    {
+      "test": "db_member_baseline",
+      "actual": [
+        false,
+        false
+      ],
+      "expected": [
+        false,
+        false
+      ],
+      "pass": true
+    },
+    {
+      "test": "member_self_promotion_denied",
+      "actual": 403,
+      "expected": 403,
+      "pass": true
+    },
+    {
+      "test": "member_role_unchanged",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "test": "db_member_after_unauthorized_attempt",
+      "actual": [
+        false,
+        false
+      ],
+      "expected": [
+        false,
+        false
+      ],
+      "pass": true
+    },
+    {
+      "test": "admin_grant",
+      "actual": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "test": "member_role_after_grant",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "test": "db_admin_after_grant",
+      "actual": [
+        true,
+        true
+      ],
+      "expected": [
+        true,
+        true
+      ],
+      "pass": true
+    },
+    {
+      "test": "db_member_after_grant",
+      "actual": [
+        true,
+        true
+      ],
+      "expected": [
+        true,
+        true
+      ],
+      "pass": true
+    },
+    {
+      "test": "same_token_access_after_grant",
+      "actual": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "test": "admin_revoke",
+      "actual": 200,
+      "expected": 200,
+      "pass": true
+    },
+    {
+      "test": "member_final_role",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "test": "db_member_after_revoke",
+      "actual": [
+        false,
+        false
+      ],
+      "expected": [
+        false,
+        false
+      ],
+      "pass": true
+    },
+    {
+      "test": "db_admin_after_revoke",
+      "actual": [
+        true,
+        true
+      ],
+      "expected": [
+        true,
+        true
+      ],
+      "pass": true
+    },
+    {
+      "test": "same_token_access_after_revoke",
+      "actual": 403,
+      "expected": 403,
+      "pass": true
+    },
+    {
+      "test": "same_token_me_after_revoke",
+      "actual": 200,
+      "expected": 200,
+      "pass": true
+    }
+  ],
+  "final_member_admin_absent": true,
+  "overall": "PASS",
+  "limitations": [
+    "Enterprise group-manager behavior not tested",
+    "Cross-tenant isolation not tested"
+  ]
+}
