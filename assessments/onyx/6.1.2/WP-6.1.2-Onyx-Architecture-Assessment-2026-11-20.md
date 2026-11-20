@@ -493,7 +493,7 @@ The corrected 11-check assessment passed.
 
 ### Next verification tasks
 
-- [ ] Confirm unauthenticated avatar requests are denied.
+- [x] Confirm unauthenticated requests to the sentinel avatar route are denied (Section 18; HTTP 403).
 - [ ] Test authorized access to a synthetic avatar.
 - [ ] Test cross-user denial using a private synthetic persona.
 - [ ] Verify intentional sharing behavior.
@@ -514,3 +514,60 @@ The corrected 11-check assessment passed.
 
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/server/features/persona/api.py
 - https://github.com/onyx-dot-app/onyx/blob/v5.1.3/backend/onyx/db/persona.py
+
+## 18. Live Persona-Avatar HTTP Negative-Path Verification
+
+**Evidence timestamp:** 2026-11-20T21:13:36.644254+00:00
+
+**Target:** Onyx v5.1.3, isolated Docker laboratory.
+
+**Method:** Live HTTP requests using synthetic admin and member accounts.
+
+### Observed results
+
+| Check | HTTP status |
+|---|---:|
+| Anonymous avatar request | 403 |
+| Member login | 204 |
+| Member `/me` | 200 |
+| Member nonexistent avatar | 404 |
+| Member logout | 204 |
+| Member `/me` after logout | 403 |
+| Admin login | 204 |
+| Admin `/me` | 200 |
+| Admin nonexistent avatar | 404 |
+| Admin logout | 204 |
+| Admin `/me` after logout | 403 |
+
+**Result:** PASS — 11/11 live HTTP checks.
+
+### Security interpretation
+
+The unauthenticated avatar request was denied.
+Both synthetic accounts received 404 for the nonexistent
+persona ID -1. Both test sessions were invalidated after logout.
+
+These results corroborate authentication enforcement and
+negative-path behavior for the tested endpoint.
+
+They do not establish object ownership enforcement,
+cross-user isolation, cross-tenant isolation,
+successful avatar retrieval, or S3 access by the handler.
+
+### Outstanding verification
+
+- Test authorized retrieval using a synthetic private persona.
+- Test access denial for another ordinary user.
+- Verify explicitly granted sharing.
+- Correlate a successful avatar HTTP request with S3 access.
+- Assess access after sharing or role changes.
+
+### Evidence integrity
+
+- Test script SHA-256: `47c0393904f6f176be08249920488d18f4b87bcb13c10d0dbc0c7764d962c64e`
+- JSON evidence SHA-256: `2c16715a6477a3b9a94b2f0084508a7c849dd0c577cb257580eb75d1c319d136`
+
+### Evidence references
+
+- `tests/persona_avatar_http_preflight.py`
+- `evidence/onyx-persona-avatar-http-preflight.json`

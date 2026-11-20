@@ -1,0 +1,41 @@
+{
+  "assessment": "WP-6.1.2",
+  "timestamp_utc": "2026-11-20T21:13:36.644254+00:00",
+  "target": "Onyx v5.1.3 isolated API",
+  "test_type": "Live HTTP negative-path preflight",
+  "checks": {
+    "anonymous_avatar_request": true,
+    "member_login": true,
+    "member_authenticated_me": true,
+    "member_sentinel_avatar": true,
+    "member_logout": true,
+    "member_session_invalidated": true,
+    "admin_login": true,
+    "admin_authenticated_me": true,
+    "admin_sentinel_avatar": true,
+    "admin_logout": true,
+    "admin_session_invalidated": true
+  },
+  "http_statuses": {
+    "anonymous_avatar_request": 403,
+    "member_login": 204,
+    "member_authenticated_me": 200,
+    "member_sentinel_avatar": 404,
+    "member_logout": 204,
+    "member_session_invalidated": 403,
+    "admin_login": 204,
+    "admin_authenticated_me": 200,
+    "admin_sentinel_avatar": 404,
+    "admin_logout": 204,
+    "admin_session_invalidated": 403
+  },
+  "overall": "PASS",
+  "limitations": [
+    "Sentinel persona ID -1, not a real private persona",
+    "Does not prove cross-user or cross-tenant isolation",
+    "Does not test successful avatar retrieval",
+    "No S3 object read verified",
+    "Synthetic login sessions created and logged out",
+    "No credentials, cookies or response bodies recorded"
+  ]
+}
