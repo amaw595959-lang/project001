@@ -1,0 +1,28 @@
+# Codex execution prompt — WP-6.1.3
+
+You are acting as my AI Security Engineering laboratory assistant in the existing checkout of `amaw595959-lang/project001`, currently reviewed at branch `assessment/onyx-611-verification` and commit `8462d9cb05bcaa81b5a503cbf7d260e6992f27d2` (verify current state first).
+
+**Mission:** Execute my canonical curriculum unit **6.1.3 — LLM API integration, orchestration and secure defaults** using **P-006** as the reference implementation and my independently authorized **Onyx v5.1.3** laboratory as the unfamiliar transfer target. Read `p-006/AGENTS.md`, root `AGENTS.md`, `p-006/README.md`, `p-006/docs/validation-status.md`, the 6.1.2 Onyx workpaper and the accompanying `WP-6.1.3-LLM-API-Integration-Secure-Defaults.md` first. Follow the 22 atomic tasks, tests, receipts and completion gates in the work package. Do not create an unrelated curriculum or duplicate verified 6.1.1/6.1.2 views.
+
+## Non-negotiable safeguards
+
+Operate only on source files and *owned/disposable* synthetic lab resources. No real AWS, real model provider keys, production cloud, uncontrolled external scanning, internet-accessible bind, paid API, privileged containers or modifications to real user data. Never display, collect into chat, or commit tokens, `.env` values, provider keys, raw HTTP headers, prompts, private logs or credentials. Do not push, publish, merge, open a PR, create new worktrees or remove unrelated Docker resources without explicit separate approval. Preserve any uncommitted changes; inspect `git status` first. No global `docker prune`. Do not start/stop existing Onyx containers as a prerequisite unless they are explicitly confirmed safe and owned. All evidence local and ignored by Git until reviewed. Label unexecuted checks NOT_TESTED and blockers BLOCKED.
+
+## Execution instructions
+
+1. Verify repository URL/branch/commit, working tree, existing Onyx checkout and exact upstream tag/commit. Inspect environment and read relevant source; do not overwrite existing 6.1.2 artifacts.
+2. Produce a minimal dependency-ordered plan and **predict** expected secure behavior *before* running tests.
+3. Source-trace P-006 `Engine.chat`, `Limits.reserve`, authentication/authorization, `Gateway.complete`, `seal`, LiteLLM `authorize`, `Transport.request`, fixed gateway model route, and deterministic backend. Add file/function/line/commit references. Identify omissions and process-local assumptions.
+4. With current environment preflight and explicit owned-resource safeguards, use only existing `p-006/Makefile` targets (`./scripts/setup`, `make doctor validate test-gateway test verify`, and `make up status test-live down` only when safe). Capture actual exit codes, test IDs, UTC timestamps, sanitized reports and hashes. Never treat earlier validation summaries as current test runs.
+5. Source-trace **Onyx v5.1.3** `backend/onyx/llm/factory.py`, `model_request.py`, `interfaces.py`, `multi_llm.py`, `api_surfaces.py`, `README.md`; find actual server endpoint entry and provider permission controls from source. Distinguish local model-server flag from hosted/provider API handling. Review current Onyx deployment without exposing credentials. Do not invent a model/chat success when inference service or a configured approved mock provider is absent.
+6. Run narrowly scoped, approved synthetic Onyx request tests only when a genuinely reachable, authorized **local mock** is already configured or can be safely installed without new egress. If not possible, produce exact BLOCKED evidence and a minimal non-destructive next-step design. Do not substitute P-006 results for Onyx observations.
+7. Produce an as-built P-006 source-linked model flow and an **independent Onyx-specific** source/runtime-labelled model flow. Reuse existing `.mmd` where accurate.
+8. Test positive, negative and boundary cases: model/provider allowlist; user/tenant context; authentication and direct gateway bypass; caller-provided API base; request and token bounds; HMAC tampering and replay; dependency downtime; timeout and retries; logging and secret leakage; streaming/tool-call handling; egress and response/error projection. Explicitly mark NOT_APPLICABLE cases instead of forcing them.
+9. If you identify a real defect, present minimal remediation proposal and ask before making broad structural changes. Test changed control and ensure no regressions. Do not create a vulnerability claim solely from suspicious source or scanner output.
+10. Produce a final `WP-6.1.3` redacted workpaper, receipt register and a *small* set of genuine test outputs; use statuses PASS, FAIL, BLOCKED, NOT_TESTED, INCONCLUSIVE and NOT_APPLICABLE. Do not claim independent learner competency. Store locally in the appropriate ignored or agreed document paths; describe every changed path and test.
+
+## Required output format
+
+Return one compact table with columns: `atomic_task_id`, `code/config evidence`, `command/test`, `actual observation`, `expected oracle`, `status`, `sanitized evidence path`, `limitations`, `next action`. Then supply a separate list of commands that I should personally reproduce, with **answers to the technical questions as explanations, not fabricated evidence**, plus five independent examination questions to ask me **without giving away the answers**. End with gate G1–G8 and a `READY / BLOCKED / INCOMPLETE` decision for proceeding to 6.1.4.
+
+**Critical:** Historical P-006 2026-11-16 test results are prior evidence. Onyx 6.1.2 did **not** test any model invocation. This task is not complete until actual fresh evidence supports the claimed scope. Source tracing can pass as source tracing even when live Onyx model testing remains BLOCKED.
